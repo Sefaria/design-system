@@ -3,8 +3,11 @@
  *
  * This file is the source of truth for semantic tokens; Figma is not kept in sync with it.
  * It started from the Figma Foundations library (Library mode, 2026-11-15), so names follow
- * Figma's paths: Semantic/Text/Primary -> --semantic-text-primary, Spacing/spacing-large ->
+ * Figma's paths: Semantic/Text/Primary -> --text-primary, Spacing/spacing-large ->
  * --spacing-large, Border width/Alias/border-width-thin -> --border-width-thin.
+ *
+ * Semantic tokens carry no layer prefix (--text-primary, --spacing-large); core tokens do
+ * (--core-*, --global-*, --shadow-*), so a name without one is the one products use.
  *
  * Rules (checked by `npm run check`):
  * - Every value is var(--a-core-token), pointing at a token defined in core.css.
@@ -43,109 +46,116 @@
   --icon-large: var(--global-dimension-300);
 
   /* Text */
-  --semantic-text-primary: var(--core-neutral-gray-1000);
-  --semantic-text-secondary: var(--core-neutral-gray-700);
-  --semantic-text-muted: var(--core-neutral-gray-550);
-  --semantic-text-disabled: var(--core-neutral-gray-400);
-  --semantic-text-inverse: var(--core-base-white);
-  --semantic-text-link: var(--core-navy-700);
-  --semantic-text-link-hovered: var(--core-navy-800);
+  --text-primary: var(--core-neutral-gray-1000);
+  --text-secondary: var(--core-neutral-gray-700);
+  --text-muted: var(--core-neutral-gray-550);
+  --text-disabled: var(--core-neutral-gray-400);
+  --text-inverse: var(--core-base-white);
+  --text-link: var(--core-navy-700);
+  --text-link-hovered: var(--core-navy-800);
 
   /* Icon */
-  --semantic-icon-default: var(--core-neutral-gray-1000);
-  --semantic-icon-muted: var(--core-neutral-gray-500);
-  --semantic-icon-disabled: var(--core-neutral-gray-400);
-  --semantic-icon-inverse: var(--core-base-white);
+  --icon-default: var(--core-neutral-gray-1000);
+  --icon-muted: var(--core-neutral-gray-500);
+  --icon-disabled: var(--core-neutral-gray-400);
+  --icon-inverse: var(--core-base-white);
 
   /* Action */
-  --semantic-action-primary: var(--core-navy-700);
-  --semantic-action-primary-hover: var(--core-navy-800);
-  --semantic-action-primary-pressed: var(--core-navy-1000);
-  --semantic-action-primary-disabled: var(--core-neutral-gray-250);
-  --semantic-action-secondary: var(--core-neutral-gray-700);
-  --semantic-action-secondary-hover: var(--core-neutral-gray-800);
-  --semantic-action-secondary-pressed: var(--core-neutral-gray-1000);
+  --action-primary: var(--core-navy-700);
+  --action-primary-hover: var(--core-navy-800);
+  --action-primary-pressed: var(--core-navy-1000);
+  --action-primary-disabled: var(--core-neutral-gray-250);
+  --action-secondary: var(--core-neutral-gray-700);
+  --action-secondary-hover: var(--core-neutral-gray-800);
+  --action-secondary-pressed: var(--core-neutral-gray-1000);
 
   /* Surface */
-  --semantic-surface-page: var(--core-base-white);
-  --semantic-surface-subtle: var(--core-neutral-gray-50);
-  --semantic-surface-hover: var(--core-neutral-gray-100);
-  --semantic-surface-hover-accent: var(--core-blue-100);
-  --semantic-surface-selected: var(--core-navy-100);
-  --semantic-surface-selected-accent: var(--core-blue-200);
-  --semantic-surface-highlighted: var(--core-navy-200);
-  --semantic-surface-inverse: var(--core-navy-900);
+  --surface-page: var(--core-base-white);
+  --surface-subtle: var(--core-neutral-gray-50);
+  --surface-hover: var(--core-neutral-gray-100);
+  --surface-hover-accent: var(--core-blue-100);
+  --surface-selected: var(--core-navy-100);
+  --surface-selected-accent: var(--core-blue-200);
+  --surface-highlighted: var(--core-navy-200);
+  --surface-inverse: var(--core-navy-900);
 
   /* Border */
-  --semantic-border-default: var(--core-neutral-gray-200);
-  --semantic-border-subtle: var(--core-neutral-gray-100);
-  --semantic-border-strong: var(--core-navy-700);
-  --semantic-border-focus: var(--core-neutral-gray-300);
-  --semantic-border-transparent: var(--core-base-transparent);
+  --border-default: var(--core-neutral-gray-200);
+  --border-subtle: var(--core-neutral-gray-100);
+  --border-strong: var(--core-navy-700);
+  --border-focus: var(--core-neutral-gray-300);
+  --border-transparent: var(--core-base-transparent);
 
   /* Module (the product's own color: Library navy; Sheets and DevPortal modes not added yet) */
-  --semantic-module-primary: var(--core-navy-700);
-  --semantic-module-primary-light: var(--core-navy-200);
-  --semantic-module-accent: var(--core-blue-100);
-  --semantic-module-background: var(--core-base-white);
+  --module-primary: var(--core-navy-700);
+  --module-primary-light: var(--core-navy-200);
+  --module-accent: var(--core-blue-100);
+  --module-background: var(--core-base-white);
 
   /* Feedback: error */
-  --semantic-feedback-error-text: var(--core-validation-red-700);
-  --semantic-feedback-error-border: var(--core-validation-red-700);
-  --semantic-feedback-error-background: var(--core-validation-red-100);
-  --semantic-feedback-error-hover: var(--core-validation-red-800);
+  --feedback-error-text: var(--core-validation-red-700);
+  --feedback-error-border: var(--core-validation-red-700);
+  --feedback-error-background: var(--core-validation-red-100);
+  --feedback-error-hover: var(--core-validation-red-800);
 
   /* Feedback: warning */
-  --semantic-feedback-warning: var(--core-validation-yellow-700);
-  --semantic-feedback-warning-text: var(--core-validation-yellow-700);
-  --semantic-feedback-warning-border: var(--core-validation-yellow-700);
-  --semantic-feedback-warning-background: var(--core-validation-yellow-100);
+  --feedback-warning: var(--core-validation-yellow-700);
+  --feedback-warning-text: var(--core-validation-yellow-700);
+  --feedback-warning-border: var(--core-validation-yellow-700);
+  --feedback-warning-background: var(--core-validation-yellow-100);
 
   /* Feedback: success */
-  --semantic-feedback-success: var(--core-brand-green-700);
-  --semantic-feedback-success-text: var(--core-validation-green-800);
-  --semantic-feedback-success-border: var(--core-validation-green-800);
-  --semantic-feedback-success-background: var(--core-brand-green-100);
+  --feedback-success: var(--core-brand-green-700);
+  --feedback-success-text: var(--core-validation-green-800);
+  --feedback-success-border: var(--core-validation-green-800);
+  --feedback-success-background: var(--core-brand-green-100);
 
   /* Feedback: info */
-  --semantic-feedback-info: var(--core-navy-600);
-  --semantic-feedback-info-text: var(--core-navy-900);
-  --semantic-feedback-info-border: var(--core-navy-600);
-  --semantic-feedback-info-background: var(--core-navy-100);
+  --feedback-info: var(--core-navy-600);
+  --feedback-info-text: var(--core-navy-900);
+  --feedback-info-border: var(--core-navy-600);
+  --feedback-info-background: var(--core-navy-100);
 
   /* Library Assistant entry points: the Ask button, Sefaria's header pill and phone menu item */
-  --semantic-chatbot-entry: var(--core-brand-purple-700);
-  --semantic-chatbot-entry-hover: var(--core-brand-purple-800);
+  --chatbot-entry: var(--core-brand-purple-700);
+  --chatbot-entry-hover: var(--core-brand-purple-800);
 
   /* Category (Sefaria's text categories; Figma: category/*) */
-  --semantic-category-tanakh-teal: var(--core-brand-teal-200);
-  --semantic-category-mishnah-blue: var(--core-blue-400);
-  --semantic-category-talmud-gold: var(--core-brand-gold-100);
-  --semantic-category-midrash-green: var(--core-brand-green-600);
-  --semantic-category-halakhah-red: var(--core-brand-coral-200);
-  --semantic-category-kabbalah-purple: var(--core-brand-violet-100);
-  --semantic-category-liturgy-rose: var(--core-brand-pink-200);
-  --semantic-category-philosophy-purple: var(--core-brand-lavender-100);
-  --semantic-category-taanitic-green: var(--core-brand-green-800);
-  --semantic-category-chasidut-green: var(--core-brand-green-400);
-  --semantic-category-mussar-purple: var(--core-brand-purple-700);
-  --semantic-category-responsa-red: var(--core-brand-coral-100);
-  --semantic-category-apocrypha-pink: var(--core-brand-pink-100);
-  --semantic-category-modern-works-blue: var(--core-blue-300);
-  --semantic-category-commentary-blue: var(--core-blue-500);
-  --semantic-category-essay-links-green: var(--core-brand-green-900);
-  --semantic-category-reference-orange: var(--core-brand-orange-100);
-  --semantic-category-beit-midrash-grey: var(--core-neutral-gray-800);
+  --category-tanakh-teal: var(--core-brand-teal-200);
+  --category-mishnah-blue: var(--core-blue-400);
+  --category-talmud-gold: var(--core-brand-gold-100);
+  --category-midrash-green: var(--core-brand-green-600);
+  --category-halakhah-red: var(--core-brand-coral-200);
+  --category-kabbalah-purple: var(--core-brand-violet-100);
+  --category-liturgy-rose: var(--core-brand-pink-200);
+  --category-philosophy-purple: var(--core-brand-lavender-100);
+  --category-taanitic-green: var(--core-brand-green-800);
+  --category-chasidut-green: var(--core-brand-green-400);
+  --category-mussar-purple: var(--core-brand-purple-700);
+  --category-responsa-red: var(--core-brand-coral-100);
+  --category-apocrypha-pink: var(--core-brand-pink-100);
+  --category-modern-works-blue: var(--core-blue-300);
+  --category-commentary-blue: var(--core-blue-500);
+  --category-essay-links-green: var(--core-brand-green-900);
+  --category-reference-orange: var(--core-brand-orange-100);
+  --category-beit-midrash-grey: var(--core-neutral-gray-800);
 
   /*
    * Old names, kept so the Library Assistant (ai-chatbot#321) keeps working.
    * Not Figma names. Remove each once the Library Assistant uses the name in the comment.
    */
+  --semantic-text-primary: var(--core-neutral-gray-1000); /* now --text-primary */
+  --semantic-text-secondary: var(--core-neutral-gray-700); /* now --text-secondary */
+  --semantic-text-muted: var(--core-neutral-gray-550); /* now --text-muted */
+  --semantic-text-link: var(--core-navy-700); /* now --text-link */
+  --semantic-action-primary: var(--core-navy-700); /* now --action-primary */
+  --semantic-icon-muted: var(--core-neutral-gray-500); /* now --icon-muted */
+  --semantic-surface-hover: var(--core-neutral-gray-100); /* now --surface-hover */
   --spacing-spacing-medium: var(--global-dimension-150); /* now --spacing-medium */
   --spacing-spacing-large: var(--global-dimension-200); /* now --spacing-large */
   --space-1: var(--global-dimension-50); /* now --spacing-xsmall */
-  --brand-sefaria-blue: var(--core-navy-700); /* a semantic token by role, e.g. --semantic-module-primary */
+  --brand-sefaria-blue: var(--core-navy-700); /* a semantic token by role, e.g. --module-primary */
   --core-blue-tbr-100: var(--core-blue-100); /* now --core-blue-100; products should use a semantic token */
   --core-blue-tbr-200: var(--core-blue-200); /* now --core-blue-200; products should use a semantic token */
-  --functional-icon-icon-primary: var(--core-neutral-gray-600); /* --semantic-icon-muted is gray-500 */
+  --functional-icon-icon-primary: var(--core-neutral-gray-600); /* --icon-muted is gray-500 */
 }

@@ -5,7 +5,7 @@ Sefaria's design tokens: core and semantic tokens as CSS variables, the source o
 | File | Holds | Rule |
 |---|---|---|
 | `core.css` | The only raw values: color palette, dimension scale | Raw values only |
-| `semantic.css` | What a value is for (`--semantic-text-primary`) | Each value is `var(--a-core-token)` |
+| `semantic.css` | What a value is for (`--text-primary`) | Each value is `var(--a-core-token)` |
 
 Products use semantic tokens. Product-specific variables (the Library Assistant's `--lc-*`) stay in the product and point at semantic tokens.
 
