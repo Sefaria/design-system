@@ -1,0 +1,29 @@
+/*
+ * Core tokens: the only raw values in the design system.
+ * They say nothing about use. Products use semantic tokens (semantic.css), not these.
+ *
+ * Rules (checked by `npm run check`):
+ * - Every value here is a raw value. No var().
+ * - Every block uses the selector `:root, :host`, so the same file works on a page
+ *   (`:root`) and inside a web component's shadow root (`:host`).
+ */
+
+:root,
+:host {
+  /* Dimension scale */
+  --global-dimension-0: 0px;
+  --space-1: 4px;
+  --global-dimension-100: 8px;
+  --global-dimension-150: 12px;
+  --global-dimension-200: 16px;
+  --global-dimension-250: 20px;
+  --global-dimension-300: 24px;
+
+  /* Colors */
+  --brand-sefaria-blue: #18345D;
+  --core-base-white: #FFFFFF;
+  --core-blue-tbr-100: #F0F7FF;
+  --core-blue-tbr-200: #DDEEFF;
+  --core-neutral-gray-100: #EEEEEE;
+  --core-neutral-gray-300: #CCCCCC;
+}

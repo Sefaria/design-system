@@ -1,0 +1,42 @@
+name: Preview in the products
+
+# Tells ai-chatbot and Sefaria-Project about this PR on every open, push, edit and close.
+# Their design-system workflows decide what to do:
+# - Standalone PR: a draft Library Assistant PR (Coolify preview) and the design-system cauldron
+#   (Sefaria) use this PR's CSS. A comment here links to both.
+# - "Ships with: ai-chatbot#123" or "Ships with: Sefaria-Project#123": that PR's branch uses this PR's CSS.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, closed]
+
+concurrency: preview-${{ github.event.pull_request.number }}
+
+jobs:
+  dispatch:
+    # Branches from forks get no secrets; previews are for branches in this repo.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      # The base branch's copy of the script: a PR can't change how its own link is read.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+
+      - name: Tell the products
+        env:
+          GH_TOKEN: ${{ secrets.DESIGN_SYSTEM_BOT_TOKEN }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_STATE: ${{ github.event.action }}
+        run: |
+          action=open
+          [ "$PR_STATE" = "closed" ] && action=close
+          ships_with=$(scripts/ships-with.sh "$PR_BODY")
+          for repo in ai-chatbot Sefaria-Project; do
+            gh api "repos/Sefaria/$repo/dispatches" \
+              -f event_type=design-system-preview \
+              -f "client_payload[action]=$action" \
+              -f "client_payload[pr]=${{ github.event.pull_request.number }}" \
+              -f "client_payload[sha]=${{ github.event.pull_request.head.sha }}" \
+              -f "client_payload[ships_with]=$ships_with"
+          done

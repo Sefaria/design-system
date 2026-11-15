@@ -1,0 +1,84 @@
+name: Release
+
+# Every merge to main is a release: tag it, then tell the products.
+# Version: minor bump by default; a merged PR labeled `breaking` (it removed or renamed a token) bumps major.
+
+on:
+  push:
+    branches: [main]
+
+concurrency: release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check before tagging
+        run: npm test && npm run check
+
+      - name: Find the merged PR
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pr=$(gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/pulls" --jq '.[0] // empty')
+          if [ -z "$pr" ]; then
+            echo "number=" >> "$GITHUB_OUTPUT"
+            echo "breaking=false" >> "$GITHUB_OUTPUT"
+            echo "ships_with=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "number=$(echo "$pr" | jq -r .number)" >> "$GITHUB_OUTPUT"
+          echo "breaking=$(echo "$pr" | jq '[.labels[].name] | index("breaking") != null')" >> "$GITHUB_OUTPUT"
+          echo "ships_with=$(scripts/ships-with.sh "$(echo "$pr" | jq -r '.body // ""')")" >> "$GITHUB_OUTPUT"
+
+      - name: Next version
+        id: version
+        run: |
+          last=$(git tag --list 'v*' --sort=-v:refname | head -1)
+          if [ -z "$last" ]; then
+            next=v1.0.0
+          else
+            IFS=. read -r major minor _ <<< "${last#v}"
+            if [ "${{ steps.pr.outputs.breaking }}" = "true" ]; then
+              next="v$((major + 1)).0.0"
+            else
+              next="v${major}.$((minor + 1)).0"
+            fi
+          fi
+          echo "tag=$next" >> "$GITHUB_OUTPUT"
+          echo "Releasing $next (after ${last:-nothing})"
+
+      - name: Tag and publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.version.outputs.tag }}" \
+            --target "${{ github.sha }}" \
+            --title "${{ steps.version.outputs.tag }}" \
+            --generate-notes
+
+      # Needs a token that can dispatch to ai-chatbot (a GitHub App token or a fine-grained PAT);
+      # the default GITHUB_TOKEN only reaches this repo.
+      # Each product updates its rolling PR, or comments on the feature PR this release ships with.
+      - name: Tell the products
+        env:
+          GH_TOKEN: ${{ secrets.DESIGN_SYSTEM_BOT_TOKEN }}
+        run: |
+          for repo in ai-chatbot Sefaria-Project; do
+            gh api "repos/Sefaria/$repo/dispatches" \
+              -f event_type=design-system-release \
+              -f "client_payload[tag]=${{ steps.version.outputs.tag }}" \
+              -f "client_payload[ships_with]=${{ steps.pr.outputs.ships_with }}"
+          done

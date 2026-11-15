@@ -1,0 +1,30 @@
+/*
+ * Semantic tokens: what a value is for. Products use these.
+ *
+ * Rules (checked by `npm run check`):
+ * - Every value is var(--a-core-token), pointing at a token defined in core.css.
+ * - A raw value is allowed only while it carries an `unmapped` comment on the same line.
+ *   These were copied from the Library Assistant and still need a core token to point at.
+ *   `npm run check` lists them. No new ones should be added.
+ * - Every block uses the selector `:root, :host` (see core.css).
+ */
+
+:root,
+:host {
+  /* Spacing */
+  --spacing-spacing-medium: var(--global-dimension-150);
+  --spacing-spacing-large: var(--global-dimension-200);
+
+  /* Action */
+  --semantic-action-primary: #18345D; /* unmapped */
+
+  /* Text */
+  --semantic-text-primary: #121212; /* unmapped */
+  --semantic-text-secondary: #575757; /* unmapped */
+  --semantic-text-muted: #707070; /* unmapped */
+  --semantic-text-link: #18345D; /* unmapped */
+
+  /* Icon */
+  --functional-icon-icon-primary: #666666; /* unmapped */
+  --semantic-icon-muted: #6F6F6F; /* unmapped */
+}

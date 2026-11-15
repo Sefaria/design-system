@@ -1,0 +1,22 @@
+{
+  "name": "@sefaria/design-system",
+  "version": "0.0.0",
+  "description": "Sefaria's design system for code: core and semantic CSS variables, mirroring the Figma design system",
+  "private": true,
+  "files": [
+    "core.css",
+    "semantic.css"
+  ],
+  "exports": {
+    "./core.css": "./core.css",
+    "./semantic.css": "./semantic.css"
+  },
+  "scripts": {
+    "check": "node scripts/check.mjs",
+    "check:additive": "node scripts/check-additive.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
