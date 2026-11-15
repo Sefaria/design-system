@@ -33,6 +33,7 @@ jobs:
           private-key: ${{ secrets.DESIGN_SYSTEM_APP_PRIVATE_KEY }}
           owner: Sefaria
           repositories: ai-chatbot,Sefaria-Project
+          permission-contents: write  # repository_dispatch needs nothing else
 
       - name: Tell the products
         env:

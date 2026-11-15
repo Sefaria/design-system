@@ -60,17 +60,10 @@ jobs:
           echo "tag=$next" >> "$GITHUB_OUTPUT"
           echo "Releasing $next (after ${last:-nothing})"
 
-      - name: Tag and publish the release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release create "${{ steps.version.outputs.tag }}" \
-            --target "${{ github.sha }}" \
-            --title "${{ steps.version.outputs.tag }}" \
-            --generate-notes
-
       # A short-lived token from the sefaria-design-system GitHub App (org variable
       # DESIGN_SYSTEM_APP_ID, org secret DESIGN_SYSTEM_APP_PRIVATE_KEY); GITHUB_TOKEN only reaches this repo.
+      # Before tagging, so a missing or uninstalled app fails the run without publishing a release
+      # the products never hear about.
       - name: Get the design-system app's token
         id: app
         uses: actions/create-github-app-token@v2
@@ -79,6 +72,16 @@ jobs:
           private-key: ${{ secrets.DESIGN_SYSTEM_APP_PRIVATE_KEY }}
           owner: Sefaria
           repositories: ai-chatbot,Sefaria-Project
+          permission-contents: write  # repository_dispatch needs nothing else
+
+      - name: Tag and publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.version.outputs.tag }}" \
+            --target "${{ github.sha }}" \
+            --title "${{ steps.version.outputs.tag }}" \
+            --generate-notes
 
       # Each product opens its update PR, and moves the feature branch this release ships with.
       - name: Tell the products
