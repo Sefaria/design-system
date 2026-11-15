@@ -1,9 +1,10 @@
 /*
  * Semantic tokens: what a value is for. Products use these.
  *
- * Every semantic token in the Figma Foundations library (Library mode), named after its Figma path:
- * Semantic/Text/Primary -> --semantic-text-primary, Spacing/spacing-large -> --spacing-large,
- * Border width/Alias/border-width-thin -> --border-width-thin, Icon/icon-small -> --icon-small.
+ * This file is the source of truth for semantic tokens; Figma is not kept in sync with it.
+ * It started from the Figma Foundations library (Library mode, 2026-11-15), so names follow
+ * Figma's paths: Semantic/Text/Primary -> --semantic-text-primary, Spacing/spacing-large ->
+ * --spacing-large, Border width/Alias/border-width-thin -> --border-width-thin.
  *
  * Rules (checked by `npm run check`):
  * - Every value is var(--a-core-token), pointing at a token defined in core.css.

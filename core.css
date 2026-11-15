@@ -2,10 +2,9 @@
  * Core tokens: the only raw values in the design system.
  * They say nothing about use. Products use semantic tokens (semantic.css), not these.
  *
- * Values and names come from the Figma Foundations library (Colors and Numbers collections,
- * Library mode; Shadows effect styles). The CSS name is the Figma path in lowercase with
- * hyphens: Core/Neutral/Gray/700 -> --core-neutral-gray-700, Global/dimension-200 ->
- * --global-dimension-200.
+ * This file is the source of truth for core tokens; Figma is not kept in sync with it.
+ * It started from the Figma Foundations library (2026-11-15), so names follow Figma's paths:
+ * Core/Neutral/Gray/700 -> --core-neutral-gray-700, Global/dimension-200 -> --global-dimension-200.
  *
  * Rules (checked by `npm run check`):
  * - Every value here is a raw value. No var().

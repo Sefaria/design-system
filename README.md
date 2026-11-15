@@ -1,6 +1,6 @@
 # Sefaria design system
 
-The code side of Sefaria's Figma design system: core and semantic tokens as CSS variables, one source for every product. Used by the Library Assistant (`Sefaria/ai-chatbot`, bundled into the widget) and Sefaria-Project (served as `static/design-system/*.css` from `node_modules`, loaded in `base.html`).
+Sefaria's design tokens: core and semantic tokens as CSS variables, the source of truth for every product (Figma is not kept in sync). Used by the Library Assistant (`Sefaria/ai-chatbot`, bundled into the widget) and Sefaria-Project (served as `static/design-system/*.css` from `node_modules`, loaded in `base.html`).
 
 | File | Holds | Rule |
 |---|---|---|
