@@ -1,10 +1,13 @@
 /*
  * Semantic tokens: what a value is for. Products use these.
  *
+ * Every semantic token in the Figma Foundations library (Library mode), named after its Figma path:
+ * Semantic/Text/Primary -> --semantic-text-primary, Spacing/spacing-large -> --spacing-large,
+ * Border width/Alias/border-width-thin -> --border-width-thin, Icon/icon-small -> --icon-small.
+ *
  * Rules (checked by `npm run check`):
  * - Every value is var(--a-core-token), pointing at a token defined in core.css.
  * - A raw value is allowed only while it carries an `unmapped` comment on the same line.
- *   These were copied from the Library Assistant and still need a core token to point at.
  *   `npm run check` lists them. No new ones should be added.
  * - Every block uses the selector `:root, :host` (see core.css).
  */
@@ -12,28 +15,112 @@
 :root,
 :host {
   /* Spacing */
-  --spacing-spacing-medium: var(--global-dimension-150);
-  --spacing-spacing-large: var(--global-dimension-200);
+  --spacing-null: var(--global-dimension-0);
+  --spacing-2xsmall: var(--global-dimension-25);
+  --spacing-xsmall: var(--global-dimension-50);
+  --spacing-small: var(--global-dimension-100);
+  --spacing-medium: var(--global-dimension-150);
+  --spacing-large: var(--global-dimension-200);
+  --spacing-xlarge: var(--global-dimension-250);
+  --spacing-2xlarge: var(--global-dimension-300);
+  --spacing-3xlarge: var(--global-dimension-350);
+  --spacing-4xlarge: var(--global-dimension-400);
+  --spacing-5xlarge: var(--global-dimension-500);
+  --spacing-6xlarge: var(--global-dimension-600);
+  --spacing-7xlarge: var(--global-dimension-800);
+  --spacing-8xlarge: var(--global-dimension-1200);
 
-  /* Action */
-  --semantic-action-primary: #18345D; /* unmapped */
+  /* Border width */
+  --border-width-null: var(--global-border-width-0);
+  --border-width-thin: var(--global-border-width-100);
+  --border-width-medium: var(--global-border-width-150);
+  --border-width-thick: var(--global-border-width-200);
+
+  /* Icon size */
+  --icon-small: var(--global-dimension-150);
+  --icon-medium: var(--global-dimension-225);
+  --icon-large: var(--global-dimension-300);
 
   /* Text */
-  --semantic-text-primary: #121212; /* unmapped */
-  --semantic-text-secondary: #575757; /* unmapped */
-  --semantic-text-muted: #707070; /* unmapped */
-  --semantic-text-link: #18345D; /* unmapped */
+  --semantic-text-primary: var(--core-neutral-gray-1000);
+  --semantic-text-secondary: var(--core-neutral-gray-700);
+  --semantic-text-muted: var(--core-neutral-gray-550);
+  --semantic-text-disabled: var(--core-neutral-gray-400);
+  --semantic-text-inverse: var(--core-base-white);
+  --semantic-text-link: var(--core-navy-700);
+  --semantic-text-link-hovered: var(--core-navy-800);
 
   /* Icon */
-  --functional-icon-icon-primary: #666666; /* unmapped */
-  --semantic-icon-muted: #6F6F6F; /* unmapped */
+  --semantic-icon-default: var(--core-neutral-gray-1000);
+  --semantic-icon-muted: var(--core-neutral-gray-500);
+  --semantic-icon-disabled: var(--core-neutral-gray-400);
+  --semantic-icon-inverse: var(--core-base-white);
+
+  /* Action */
+  --semantic-action-primary: var(--core-navy-700);
+  --semantic-action-primary-hover: var(--core-navy-800);
+  --semantic-action-primary-pressed: var(--core-navy-1000);
+  --semantic-action-primary-disabled: var(--core-neutral-gray-250);
+  --semantic-action-secondary: var(--core-neutral-gray-700);
+  --semantic-action-secondary-hover: var(--core-neutral-gray-800);
+  --semantic-action-secondary-pressed: var(--core-neutral-gray-1000);
+
+  /* Surface */
+  --semantic-surface-page: var(--core-base-white);
+  --semantic-surface-subtle: var(--core-neutral-gray-50);
+  --semantic-surface-hover: var(--core-neutral-gray-100);
+  --semantic-surface-hover-accent: var(--core-blue-100);
+  --semantic-surface-selected: var(--core-navy-100);
+  --semantic-surface-selected-accent: var(--core-blue-200);
+  --semantic-surface-highlighted: var(--core-navy-200);
+  --semantic-surface-inverse: var(--core-navy-900);
+
+  /* Border */
+  --semantic-border-default: var(--core-neutral-gray-200);
+  --semantic-border-subtle: var(--core-neutral-gray-100);
+  --semantic-border-strong: var(--core-navy-700);
+  --semantic-border-focus: var(--core-neutral-gray-300);
+  --semantic-border-transparent: var(--core-base-transparent);
+
+  /* Module (the product's own color: Library navy; Sheets and DevPortal modes not added yet) */
+  --semantic-module-primary: var(--core-navy-700);
+  --semantic-module-primary-light: var(--core-navy-200);
+  --semantic-module-accent: var(--core-blue-100);
+  --semantic-module-background: var(--core-base-white);
+
+  /* Feedback: error */
+  --semantic-feedback-error-text: var(--core-validation-red-700);
+  --semantic-feedback-error-border: var(--core-validation-red-700);
+  --semantic-feedback-error-background: var(--core-validation-red-100);
+  --semantic-feedback-error-hover: var(--core-validation-red-800);
+
+  /* Feedback: warning */
+  --semantic-feedback-warning: var(--core-validation-yellow-700);
+  --semantic-feedback-warning-text: var(--core-validation-yellow-700);
+  --semantic-feedback-warning-border: var(--core-validation-yellow-700);
+  --semantic-feedback-warning-background: var(--core-validation-yellow-100);
+
+  /* Feedback: success */
+  --semantic-feedback-success: var(--core-brand-green-700);
+  --semantic-feedback-success-text: var(--core-validation-green-800);
+  --semantic-feedback-success-border: var(--core-validation-green-800);
+  --semantic-feedback-success-background: var(--core-brand-green-100);
+
+  /* Feedback: info */
+  --semantic-feedback-info: var(--core-navy-600);
+  --semantic-feedback-info-text: var(--core-navy-900);
+  --semantic-feedback-info-border: var(--core-navy-600);
+  --semantic-feedback-info-background: var(--core-navy-100);
 
   /*
    * Old names, kept so the Library Assistant (ai-chatbot#321) keeps working.
    * Not Figma names. Remove each once the Library Assistant uses the name in the comment.
    */
+  --spacing-spacing-medium: var(--global-dimension-150); /* now --spacing-medium */
+  --spacing-spacing-large: var(--global-dimension-200); /* now --spacing-large */
   --space-1: var(--global-dimension-50); /* now --spacing-xsmall */
   --brand-sefaria-blue: var(--core-navy-700); /* a semantic token by role, e.g. --semantic-module-primary */
   --core-blue-tbr-100: var(--core-blue-100); /* now --core-blue-100; products should use a semantic token */
   --core-blue-tbr-200: var(--core-blue-200); /* now --core-blue-200; products should use a semantic token */
+  --functional-icon-icon-primary: var(--core-neutral-gray-600); /* --semantic-icon-muted is gray-500 */
 }
