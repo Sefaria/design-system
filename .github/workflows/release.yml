@@ -36,12 +36,10 @@ jobs:
           if [ -z "$pr" ]; then
             echo "number=" >> "$GITHUB_OUTPUT"
             echo "breaking=false" >> "$GITHUB_OUTPUT"
-            echo "ships_with=" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           echo "number=$(echo "$pr" | jq -r .number)" >> "$GITHUB_OUTPUT"
           echo "breaking=$(echo "$pr" | jq '[.labels[].name] | index("breaking") != null')" >> "$GITHUB_OUTPUT"
-          echo "ships_with=$(scripts/ships-with.sh "$(echo "$pr" | jq -r '.body // ""')")" >> "$GITHUB_OUTPUT"
 
       - name: Next version
         id: version
@@ -83,7 +81,7 @@ jobs:
             --title "${{ steps.version.outputs.tag }}" \
             --generate-notes
 
-      # Each product opens its update PR, and moves the feature branch this release ships with.
+      # Each product opens or updates its "update to vX" PR (see their design-system workflows).
       - name: Tell the products
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
@@ -91,6 +89,5 @@ jobs:
           for repo in ai-chatbot Sefaria-Project; do
             gh api "repos/Sefaria/$repo/dispatches" \
               -f event_type=design-system-release \
-              -f "client_payload[tag]=${{ steps.version.outputs.tag }}" \
-              -f "client_payload[ships_with]=${{ steps.pr.outputs.ships_with }}"
+              -f "client_payload[tag]=${{ steps.version.outputs.tag }}"
           done

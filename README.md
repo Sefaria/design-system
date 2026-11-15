@@ -11,31 +11,18 @@ Products use semantic tokens. Product-specific variables (the Library Assistant'
 
 Every block uses the selector `:root, :host`: on a page `:root` matches, inside a web component's shadow root `:host` does, so the same file works in both. Dark mode, when it comes, is a second block in `semantic.css` with `:root[data-theme="dark"], :host([data-theme="dark"])` that points semantic tokens at other core tokens.
 
-`npm run check` enforces the rules. A few semantic tokens copied from the Library Assistant still hold raw values; they're marked `/* unmapped */` and listed by the check until they point at core tokens.
+`npm run check` enforces the rules: the layers, exact selectors, one declaration per line, values limited to colors, lengths, numbers, `var()`, `calc()`, `rgb()` and font names (no `url()`, `!important` or markup), and no install scripts in `package.json`. Seven semantic tokens copied from the Library Assistant still hold raw values; they're listed in `scripts/tokens.mjs` (`LEGACY_UNMAPPED`) and by the check until they point at core tokens. No new ones.
 
 ## Changing a token
 
-Everything after "open a PR" and "merge" is automatic.
+1. **Open a PR.** CI checks the rules. Removing or renaming a token needs the `breaking` label (CI checks it), because products use tokens by name.
+2. **Preview it.** A bot comment on the PR has the links: any Sefaria page outside production (a cauldron, staging, or local) opened with `?design_system=<commit>` loads the PR's CSS over the released one, on the page and in the Library Assistant. Nothing is built. `?design_system=<branch>` follows the branch (a push shows within about 5 minutes); add `&chatbot_version=<n>` for a Library Assistant PR's preview; `?design_system=clear` turns it off.
+3. **Merge** (one approval). The merge is tagged as a release: `v1.4.0`, or `v2.0.0` for a PR labeled `breaking`.
+4. **The products update.** In each product the `sefaria-design-system` app opens (or updates) one PR, "fix(design-system): update to v1.4.0". Nothing changes in a product until that PR merges:
+   - Sefaria-Project: merges itself once approved and CI passes; deploys to staging, then prod with the next promotion.
+   - ai-chatbot: someone merges it once CI passes; it reaches chat-dev, then prod with the next `production` release.
 
-**Before merging: previews.** Every push to your PR updates them.
-
-| Your PR | Library Assistant | Sefaria |
-|---|---|---|
-| Standalone ("Ships with" empty) | A draft ai-chatbot PR with your CSS; Coolify builds its preview | The `design-system` cauldron (https://design-system.cauldron.sefaria.org) shows your CSS; it holds one PR at a time, the most recently pushed |
-| `Ships with: ai-chatbot#123` | The bot commits your CSS to #123's branch; #123's Coolify preview shows it | (unchanged) |
-| `Ships with: Sefaria-Project#123` | (unchanged) | The bot commits your CSS to #123's branch; that branch's cauldron shows it |
-
-For a standalone PR, a bot comment links to both: the cauldron URL with `?chatbot_version=<draft PR>` shows Sefaria and the Library Assistant together with your CSS.
-
-A PR that ships with a feature may only add tokens (CI checks it). To change how something looks for a feature, add a new token, let the feature use it, and remove the old one in a later cleanup PR.
-
-**Merging: release, dev, prod.**
-
-1. The merge is tagged as a release (`v1.4.0`; a PR labeled `breaking` bumps the major version).
-2. In each product, the bot opens a PR "fix(design-system): update to v1.4.0" that merges itself once CI passes.
-   - ai-chatbot `main`: that cuts a dev build, which reaches chat-dev, then prod with the next `production` release.
-   - Sefaria-Project `master`: that deploys to staging, then prod with the next promotion.
-3. If your PR shipped with a feature PR, the bot also moves that branch to `v1.4.0`, so the feature can merge. Feature PRs can't merge while they still point at an unreleased design-system commit (CI checks it).
+**For a feature that needs new tokens:** test the feature's preview or cauldron with `?design_system=<this PR's commit>`, so the feature's code and the new tokens are seen together. Merge the design-system PR first; the feature merges once its branch uses the release (after the update PR, or by bumping the version itself). Products' CI fails a branch that points at an unreleased design-system commit.
 
 ## Using it in a product
 
@@ -43,14 +30,13 @@ A PR that ships with a feature may only add tokens (CI checks it). To change how
 "@sefaria/design-system": "github:Sefaria/design-system#v1.0.0"
 ```
 
-Products pin a tag. Main branches only ever point at a tag; feature branches may point at a design-system branch while it's in review. The CSS is copied into the product's build, so nothing is fetched at runtime and a rebuild gives the same result.
+Products pin a tag; their CI checks that the lockfile installs that tag's commit and that the version isn't older than the base branch's. The CSS is copied into the product's build, so nothing is fetched at runtime (except a preview, outside production) and a rebuild gives the same result.
 
-To try local changes in a product, `npm link` this checkout there, then switch back to the tag.
+To try local changes in a product, `npm link` this checkout there and restart its dev server (Vite doesn't watch `node_modules`). `npm link` rewrites `package.json` and the lockfile: restore them (`npm install github:Sefaria/design-system#vX.Y.Z`) before committing.
 
 ## Setup (once)
 
-- The `sefaria-design-system` GitHub App (Contents, Pull requests and Issues: read and write), installed on this repo, ai-chatbot and Sefaria-Project. Org variable `DESIGN_SYSTEM_APP_ID` and org secret `DESIGN_SYSTEM_APP_PRIVATE_KEY`, both limited to those three repos. Workflows create a short-lived token from them. Coolify auto-deploys previews only for members' PRs; if it skips the app's draft ai-chatbot PRs, allow them in Coolify.
-- "Allow auto-merge" on in ai-chatbot and Sefaria-Project. If their main branches require an approving review, the bot's update PRs wait for one unless the bot is allowed to bypass it.
-- A cauldron named `design-system` tracking Sefaria-Project's `design-system/preview` branch (created by the first standalone preview).
+- `main` protected: PR, one approval, CI (`Check tokens`).
+- The `sefaria-design-system` GitHub App (Contents and Pull requests: read and write), installed on this repo, ai-chatbot and Sefaria-Project. Org variable `DESIGN_SYSTEM_APP_ID` and org secret `DESIGN_SYSTEM_APP_PRIVATE_KEY`, limited to those three repos. Only `release.yml` uses them, on pushes to protected `main`.
+- "Allow auto-merge" on in Sefaria-Project.
 - Label `breaking`.
-- Branch protection on `main`: CI must pass.

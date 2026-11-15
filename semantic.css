@@ -3,9 +3,9 @@
  *
  * Rules (checked by `npm run check`):
  * - Every value is var(--a-core-token), pointing at a token defined in core.css.
- * - A raw value is allowed only while it carries an `unmapped` comment on the same line.
- *   These were copied from the Library Assistant and still need a core token to point at.
- *   `npm run check` lists them. No new ones should be added.
+ * - Exception: the seven tokens marked `unmapped` below were copied from the Library Assistant and
+ *   still hold raw values (listed in scripts/tokens.mjs, LEGACY_UNMAPPED). `npm run check` lists them.
+ *   Point each at a core token, then remove it from that list. No new ones.
  * - Every block uses the selector `:root, :host` (see core.css).
  */
 

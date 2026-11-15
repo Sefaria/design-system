@@ -2,19 +2,12 @@
 
 <!-- e.g. "Text muted is now gray-500", "New token for the raised card surface" -->
 
-## Is this for a specific product PR?
+## Related product PRs
 
 <!--
-If this change is needed by one feature PR, link it on the line below, e.g.
-  Ships with: ai-chatbot#123
-  Ships with: Sefaria-Project#4567
-Then:
-- This PR may only ADD tokens (CI checks it).
-- The bot commits your CSS to that PR's branch on every push, so its preview shows your change.
-- When you merge, the bot moves that branch to the release.
+Optional: PRs in ai-chatbot or Sefaria-Project that use this change, e.g. "Related: ai-chatbot#123".
+Test them together: open that PR's preview or cauldron with ?design_system=<this PR's commit> (a bot
+comment below has the links). Merge this PR first; the product PR merges once it uses the release.
 
-Leave it empty for a standalone change: a bot comment links to the Library Assistant preview and the
-design-system cauldron (Sefaria), both using your CSS.
+Removing or renaming a token the products use? Add the `breaking` label.
 -->
-
-Ships with:

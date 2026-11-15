@@ -13,7 +13,7 @@
   },
   "scripts": {
     "check": "node scripts/check.mjs",
-    "check:additive": "node scripts/check-additive.mjs",
+    "check:removals": "node scripts/check-removals.mjs",
     "test": "node --test test/*.test.mjs"
   },
   "engines": {

@@ -4,8 +4,11 @@ on:
   push:
     branches: [main]
   pull_request:
-    # `edited`: adding or removing a "Ships with" link changes which checks apply.
-    types: [opened, synchronize, reopened, edited]
+    # labeled/unlabeled: the `breaking` label decides whether removing a token is allowed.
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
 
 jobs:
   check:
@@ -23,27 +26,14 @@ jobs:
       - name: Tests
         run: npm test
 
-      - name: Layer rules (core holds raw values, semantic points at core)
+      - name: Layer rules, allowed values, no install scripts
         run: npm run check
 
-      # A PR that ships with a product PR may only add tokens. Its release reaches the product's
-      # main branch through the rolling update PR too, possibly before the feature merges,
-      # so changing an existing token there would ship the change without the feature.
-      - name: Linked PRs only add tokens
+      # Products use tokens by name: removing or renaming one needs the `breaking` label, which
+      # also makes the release a new major version.
+      - name: Removed tokens need the breaking label
         if: github.event_name == 'pull_request'
         env:
-          PR_BODY: ${{ github.event.pull_request.body }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        run: |
-          # The base branch's copy of the script, so a PR can't change how its own link is read.
-          # (The repo's first PR has no base copy yet.)
-          if git cat-file -e "$BASE_SHA:scripts/ships-with.sh" 2>/dev/null; then
-            link=$(git show "$BASE_SHA:scripts/ships-with.sh" | bash -s -- "$PR_BODY")
-          else
-            link=$(scripts/ships-with.sh "$PR_BODY")
-          fi
-          if [ -n "$link" ]; then
-            npm run -s check:additive -- "$BASE_SHA"
-          else
-            echo "Standalone change (no 'Ships with' link): existing tokens may change."
-          fi
+          BREAKING: ${{ contains(github.event.pull_request.labels.*.name, 'breaking') }}
+        run: npm run -s check:removals -- "$BASE_SHA"
