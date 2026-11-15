@@ -112,6 +112,10 @@
   --semantic-feedback-info-border: var(--core-navy-600);
   --semantic-feedback-info-background: var(--core-navy-100);
 
+  /* Library Assistant entry points: the Ask button, Sefaria's header pill and phone menu item */
+  --semantic-chatbot-entry: var(--core-brand-purple-700);
+  --semantic-chatbot-entry-hover: var(--core-brand-purple-800);
+
   /* Category (Sefaria's text categories; Figma: category/*) */
   --semantic-category-tanakh-teal: var(--core-brand-teal-200);
   --semantic-category-mishnah-blue: var(--core-blue-400);
