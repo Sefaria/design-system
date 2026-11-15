@@ -2,6 +2,11 @@
  * Core tokens: the only raw values in the design system.
  * They say nothing about use. Products use semantic tokens (semantic.css), not these.
  *
+ * Values and names come from the Figma Foundations library (Colors and Numbers collections,
+ * Library mode; Shadows effect styles). The CSS name is the Figma path in lowercase with
+ * hyphens: Core/Neutral/Gray/700 -> --core-neutral-gray-700, Global/dimension-200 ->
+ * --global-dimension-200.
+ *
  * Rules (checked by `npm run check`):
  * - Every value here is a raw value. No var().
  * - Every block uses the selector `:root, :host`, so the same file works on a page
@@ -10,20 +15,152 @@
 
 :root,
 :host {
-  /* Dimension scale */
+  /* Dimension scale (Global/dimension-*) */
   --global-dimension-0: 0px;
-  --space-1: 4px;
+  --global-dimension-25: 2px;
+  --global-dimension-50: 4px;
   --global-dimension-100: 8px;
   --global-dimension-150: 12px;
   --global-dimension-200: 16px;
+  --global-dimension-225: 18px;
   --global-dimension-250: 20px;
   --global-dimension-300: 24px;
+  --global-dimension-350: 32px;
+  --global-dimension-400: 40px;
+  --global-dimension-500: 44px;
+  --global-dimension-600: 48px;
+  --global-dimension-700: 56px;
+  --global-dimension-800: 64px;
+  --global-dimension-1200: 96px;
+  --global-dimension-1600: 128px;
 
-  /* Colors */
-  --brand-sefaria-blue: #18345D;
+  /* Border widths (Border/Border width/Global/border-width-*) */
+  --global-border-width-0: 0px;
+  --global-border-width-100: 1px;
+  --global-border-width-150: 1.5px;
+  --global-border-width-200: 2px;
+  --global-border-width-400: 4px;
+
+  /* Shadows (Foundations effect styles Shadows/shadow-*) */
+  --shadow-small: 0 8px 16px 0 rgb(31 31 31 / 0.05), 0 1px 2px 0 rgb(31 31 31 / 0.04), 0 0 10px -1px rgb(83 83 83 / 0.04);
+  --shadow-medium: 0 10px 20px 0 rgb(0 0 0 / 0.08), 0 1px 2px 0 rgb(0 0 0 / 0.08);
+  --shadow-large: 0 16px 32px 0 rgb(13 3 32 / 0.16), 0 1px 2px 0 rgb(0 0 0 / 0.08);
+  --shadow-xlarge: 0 40px 80px 0 rgb(0 0 0 / 0.18), 0 1px 2px 0 rgb(0 0 0 / 0.08);
+  --shadow-xxlarge: 0 0 10px -1px rgb(83 83 83 / 0.4), 0 8px 16px 0 rgb(31 31 31 / 0.05), 0 1px 2px 0 rgb(31 31 31 / 0.04);
+
+  /* Base */
   --core-base-white: #FFFFFF;
-  --core-blue-tbr-100: #F0F7FF;
-  --core-blue-tbr-200: #DDEEFF;
+  --core-base-black: #000000;
+  --core-base-transparent: #FFFFFF00;
+
+  /* Neutral gray */
+  --core-neutral-gray-50: #FAFAFA;
   --core-neutral-gray-100: #EEEEEE;
+  --core-neutral-gray-200: #EDEDEC;
+  --core-neutral-gray-250: #E6E6E6;
+  --core-neutral-gray-275: #DFDFDF;
   --core-neutral-gray-300: #CCCCCC;
+  --core-neutral-gray-400: #999999;
+  --core-neutral-gray-500: #6F6F6F;
+  --core-neutral-gray-550: #707070;
+  --core-neutral-gray-600: #666666;
+  --core-neutral-gray-700: #575757;
+  --core-neutral-gray-800: #333333;
+  --core-neutral-gray-900: #1F1F1F;
+  --core-neutral-gray-1000: #121212;
+
+  /* Navy */
+  --core-navy-100: #F2F5FA;
+  --core-navy-200: #E4EAF3;
+  --core-navy-300: #C9D5E6;
+  --core-navy-400: #AABBD4;
+  --core-navy-500: #7F97B9;
+  --core-navy-600: #4F6F9A;
+  --core-navy-700: #18345D; /* Sefaria brand blue */
+  --core-navy-800: #132B4C;
+  --core-navy-900: #0F223B;
+  --core-navy-1000: #0B1A2D;
+  --core-navy-1100: #07121F;
+
+  /* Blue */
+  --core-blue-50: #F2F8FF;
+  --core-blue-100: #F0F7FF;
+  --core-blue-200: #DDEEFF;
+  --core-blue-250: #D2DCFF;
+  --core-blue-300: #B8D4D3;
+  --core-blue-400: #5A99B7;
+  --core-blue-500: #4B71B7;
+  --core-blue-600: #4871BF;
+  --core-blue-700: #1976D2;
+  --core-blue-800: #0B71E7;
+  --core-blue-850: #0056B3;
+
+  /* Brand */
+  --core-brand-purple-100: #F7EEF5;
+  --core-brand-purple-200: #EEDBEA;
+  --core-brand-purple-300: #E1BED8;
+  --core-brand-purple-400: #CC97BE;
+  --core-brand-purple-500: #B36FA2;
+  --core-brand-purple-600: #965386;
+  --core-brand-purple-700: #7C416F;
+  --core-brand-purple-800: #653259;
+  --core-brand-purple-900: #4E2544;
+  --core-brand-purple-1000: #38192F;
+  --core-brand-purple-1100: #24101E;
+  --core-brand-green-100: #F1FCF5;
+  --core-brand-green-200: #D1EADA;
+  --core-brand-green-300: #B2B272;
+  --core-brand-green-400: #97B386;
+  --core-brand-green-600: #5D956F;
+  --core-brand-green-700: #518159;
+  --core-brand-green-800: #00827F;
+  --core-brand-green-900: #3B5849;
+  --core-brand-coral-100: #CB6158;
+  --core-brand-coral-200: #802F3E;
+  --core-brand-gold-100: #CCB479;
+  --core-brand-orange-100: #D4896C;
+  --core-brand-pink-100: #C6A7B4;
+  --core-brand-pink-200: #AB4E66;
+  --core-brand-teal-200: #004E5F;
+
+  /* Validation: red */
+  --core-validation-red-100: #F9EBE9;
+  --core-validation-red-200: #F5DDDA;
+  --core-validation-red-300: #EABCB5;
+  --core-validation-red-400: #E09A91;
+  --core-validation-red-500: #D5786C;
+  --core-validation-red-600: #CA5747;
+  --core-validation-red-700: #C03522;
+  --core-validation-red-800: #A02C1C;
+  --core-validation-red-900: #802317;
+  --core-validation-red-1000: #601B11;
+  --core-validation-red-1100: #40120B;
+  --core-validation-red-1200: #300D09;
+
+  /* Validation: yellow */
+  --core-validation-yellow-100: #FDF8E9;
+  --core-validation-yellow-200: #FBF3DB;
+  --core-validation-yellow-300: #F7E7B6;
+  --core-validation-yellow-400: #F3DB92;
+  --core-validation-yellow-500: #EECE6D;
+  --core-validation-yellow-600: #EAC248;
+  --core-validation-yellow-700: #E6B624;
+  --core-validation-yellow-800: #CA9D16;
+  --core-validation-yellow-900: #A17D12;
+  --core-validation-yellow-1000: #775D0D;
+  --core-validation-yellow-1100: #4D3D0C;
+
+  /* Validation: green */
+  --core-validation-green-100: #F3F7F4;
+  --core-validation-green-200: #EAF2ED;
+  --core-validation-green-300: #D3E4D9;
+  --core-validation-green-400: #BAD6C3;
+  --core-validation-green-500: #9CC6AB;
+  --core-validation-green-600: #77B58E;
+  --core-validation-green-700: #3FA26A;
+  --core-validation-green-800: #3A9461;
+  --core-validation-green-900: #338457;
+  --core-validation-green-1000: #2D734B;
+  --core-validation-green-1100: #245E3D;
+  --core-validation-green-1200: #1A422B;
 }

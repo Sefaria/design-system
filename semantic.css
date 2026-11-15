@@ -27,4 +27,13 @@
   /* Icon */
   --functional-icon-icon-primary: #666666; /* unmapped */
   --semantic-icon-muted: #6F6F6F; /* unmapped */
+
+  /*
+   * Old names, kept so the Library Assistant (ai-chatbot#321) keeps working.
+   * Not Figma names. Remove each once the Library Assistant uses the name in the comment.
+   */
+  --space-1: var(--global-dimension-50); /* now --spacing-xsmall */
+  --brand-sefaria-blue: var(--core-navy-700); /* a semantic token by role, e.g. --semantic-module-primary */
+  --core-blue-tbr-100: var(--core-blue-100); /* now --core-blue-100; products should use a semantic token */
+  --core-blue-tbr-200: var(--core-blue-200); /* now --core-blue-200; products should use a semantic token */
 }
