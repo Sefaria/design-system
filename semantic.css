@@ -112,6 +112,26 @@
   --semantic-feedback-info-border: var(--core-navy-600);
   --semantic-feedback-info-background: var(--core-navy-100);
 
+  /* Category (Sefaria's text categories; Figma: category/*) */
+  --semantic-category-tanakh-teal: var(--core-brand-teal-200);
+  --semantic-category-mishnah-blue: var(--core-blue-400);
+  --semantic-category-talmud-gold: var(--core-brand-gold-100);
+  --semantic-category-midrash-green: var(--core-brand-green-600);
+  --semantic-category-halakhah-red: var(--core-brand-coral-200);
+  --semantic-category-kabbalah-purple: var(--core-brand-violet-100);
+  --semantic-category-liturgy-rose: var(--core-brand-pink-200);
+  --semantic-category-philosophy-purple: var(--core-brand-lavender-100);
+  --semantic-category-taanitic-green: var(--core-brand-green-800);
+  --semantic-category-chasidut-green: var(--core-brand-green-400);
+  --semantic-category-mussar-purple: var(--core-brand-purple-700);
+  --semantic-category-responsa-red: var(--core-brand-coral-100);
+  --semantic-category-apocrypha-pink: var(--core-brand-pink-100);
+  --semantic-category-modern-works-blue: var(--core-blue-300);
+  --semantic-category-commentary-blue: var(--core-blue-500);
+  --semantic-category-essay-links-green: var(--core-brand-green-900);
+  --semantic-category-reference-orange: var(--core-brand-orange-100);
+  --semantic-category-beit-midrash-grey: var(--core-neutral-gray-800);
+
   /*
    * Old names, kept so the Library Assistant (ai-chatbot#321) keeps working.
    * Not Figma names. Remove each once the Library Assistant uses the name in the comment.
