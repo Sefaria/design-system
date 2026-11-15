@@ -1,7 +1,10 @@
 name: Release
 
-# Every merge to main is a release: tag it, then tell the products.
-# Version: minor bump by default; a merged PR labeled `breaking` (it removed or renamed a token) bumps major.
+# A push to main that changes core.css or semantic.css since the last release is tagged, then the
+# products are told. Everything is computed from <last release>..HEAD, so a run cancelled by a newer
+# push loses nothing: the next run covers its changes.
+# Version: minor bump; major if a token was removed or renamed since the last release (CI already
+# requires the `breaking` label on such PRs; this doesn't depend on the label).
 
 on:
   push:
@@ -14,7 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,34 +29,30 @@ jobs:
       - name: Check before tagging
         run: npm test && npm run check
 
-      - name: Find the merged PR
-        id: pr
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          pr=$(gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/pulls" --jq '.[0] // empty')
-          if [ -z "$pr" ]; then
-            echo "number=" >> "$GITHUB_OUTPUT"
-            echo "breaking=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          echo "number=$(echo "$pr" | jq -r .number)" >> "$GITHUB_OUTPUT"
-          echo "breaking=$(echo "$pr" | jq '[.labels[].name] | index("breaking") != null')" >> "$GITHUB_OUTPUT"
-
       - name: Next version
         id: version
         run: |
-          last=$(git tag --list 'v*' --sort=-v:refname | head -1)
+          # Releases only: vX.Y.Z, nothing like v2.0.0-rc.1.
+          last=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1 || true)
+          if [ -n "$last" ] && git tag --points-at HEAD | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "HEAD is already released; nothing to do."
+            echo "release=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
           if [ -z "$last" ]; then
             next=v1.0.0
+          elif git diff --quiet "$last" HEAD -- core.css semantic.css; then
+            echo "No token file changed since $last; nothing to release."
+            echo "release=false" >> "$GITHUB_OUTPUT"; exit 0
           else
             IFS=. read -r major minor _ <<< "${last#v}"
-            if [ "${{ steps.pr.outputs.breaking }}" = "true" ]; then
-              next="v$((major + 1)).0.0"
-            else
+            if BREAKING=false node scripts/check-removals.mjs "$last" > /dev/null 2>&1; then
               next="v${major}.$((minor + 1)).0"
+            else
+              echo "Tokens were removed or renamed since $last: major version."
+              next="v$((major + 1)).0.0"
             fi
           fi
+          echo "release=true" >> "$GITHUB_OUTPUT"
           echo "tag=$next" >> "$GITHUB_OUTPUT"
           echo "Releasing $next (after ${last:-nothing})"
 
@@ -63,6 +61,7 @@ jobs:
       # Before tagging, so a missing or uninstalled app fails the run without publishing a release
       # the products never hear about.
       - name: Get the design-system app's token
+        if: steps.version.outputs.release == 'true'
         id: app
         uses: actions/create-github-app-token@v2
         with:
@@ -73,6 +72,7 @@ jobs:
           permission-contents: write  # repository_dispatch needs nothing else
 
       - name: Tag and publish the release
+        if: steps.version.outputs.release == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -83,6 +83,7 @@ jobs:
 
       # Each product opens or updates its "update to vX" PR (see their design-system workflows).
       - name: Tell the products
+        if: steps.version.outputs.release == 'true'
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
         run: |

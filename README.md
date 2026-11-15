@@ -17,7 +17,7 @@ Every block uses the selector `:root, :host`: on a page `:root` matches, inside 
 
 1. **Open a PR.** CI checks the rules. Removing or renaming a token needs the `breaking` label (CI checks it), because products use tokens by name.
 2. **Preview it.** A bot comment on the PR has the links: any Sefaria page outside production (a cauldron, staging, or local) opened with `?design_system=<commit>` loads the PR's CSS over the released one, on the page and in the Library Assistant. Nothing is built. `?design_system=<branch>` follows the branch (a push shows within about 5 minutes); add `&chatbot_version=<n>` for a Library Assistant PR's preview; `?design_system=clear` turns it off.
-3. **Merge** (one approval). The merge is tagged as a release: `v1.4.0`, or `v2.0.0` for a PR labeled `breaking`.
+3. **Merge** (one approval). If `core.css` or `semantic.css` changed since the last release, the merge is tagged as a release: `v1.4.0`, or `v2.0.0` if a token was removed or renamed. The tag is the version (`package.json` stays `0.0.0`).
 4. **The products update.** In each product the `sefaria-design-system` app opens (or updates) one PR, "fix(design-system): update to v1.4.0". Nothing changes in a product until that PR merges:
    - Sefaria-Project: merges itself once approved and CI passes; deploys to staging, then prod with the next promotion.
    - ai-chatbot: someone merges it once CI passes; it reaches chat-dev, then prod with the next `production` release.
