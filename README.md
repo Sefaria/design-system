@@ -49,7 +49,7 @@ To try local changes in a product, `npm link` this checkout there, then switch b
 
 ## Setup (once)
 
-- Secret `DESIGN_SYSTEM_BOT_TOKEN`, in this repo, ai-chatbot and Sefaria-Project: a token that can dispatch to, push branches to, open PRs in and comment on all three. It must belong to a member of ai-chatbot, because Coolify only auto-deploys previews for members' PRs (so not a GitHub App).
+- The `sefaria-design-system` GitHub App (Contents, Pull requests and Issues: read and write), installed on this repo, ai-chatbot and Sefaria-Project. Org variable `DESIGN_SYSTEM_APP_ID` and org secret `DESIGN_SYSTEM_APP_PRIVATE_KEY`, both limited to those three repos. Workflows create a short-lived token from them. Coolify auto-deploys previews only for members' PRs; if it skips the app's draft ai-chatbot PRs, allow them in Coolify.
 - "Allow auto-merge" on in ai-chatbot and Sefaria-Project. If their main branches require an approving review, the bot's update PRs wait for one unless the bot is allowed to bypass it.
 - A cauldron named `design-system` tracking Sefaria-Project's `design-system/preview` branch (created by the first standalone preview).
 - Label `breaking`.

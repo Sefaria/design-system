@@ -23,9 +23,20 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.sha }}
 
+      # A short-lived token from the sefaria-design-system GitHub App (org variable
+      # DESIGN_SYSTEM_APP_ID, org secret DESIGN_SYSTEM_APP_PRIVATE_KEY); GITHUB_TOKEN only reaches this repo.
+      - name: Get the design-system app's token
+        id: app
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.DESIGN_SYSTEM_APP_ID }}
+          private-key: ${{ secrets.DESIGN_SYSTEM_APP_PRIVATE_KEY }}
+          owner: Sefaria
+          repositories: ai-chatbot,Sefaria-Project
+
       - name: Tell the products
         env:
-          GH_TOKEN: ${{ secrets.DESIGN_SYSTEM_BOT_TOKEN }}
+          GH_TOKEN: ${{ steps.app.outputs.token }}
           PR_BODY: ${{ github.event.pull_request.body }}
           PR_STATE: ${{ github.event.action }}
         run: |

@@ -69,12 +69,21 @@ jobs:
             --title "${{ steps.version.outputs.tag }}" \
             --generate-notes
 
-      # Needs a token that can dispatch to ai-chatbot (a GitHub App token or a fine-grained PAT);
-      # the default GITHUB_TOKEN only reaches this repo.
-      # Each product updates its rolling PR, or comments on the feature PR this release ships with.
+      # A short-lived token from the sefaria-design-system GitHub App (org variable
+      # DESIGN_SYSTEM_APP_ID, org secret DESIGN_SYSTEM_APP_PRIVATE_KEY); GITHUB_TOKEN only reaches this repo.
+      - name: Get the design-system app's token
+        id: app
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.DESIGN_SYSTEM_APP_ID }}
+          private-key: ${{ secrets.DESIGN_SYSTEM_APP_PRIVATE_KEY }}
+          owner: Sefaria
+          repositories: ai-chatbot,Sefaria-Project
+
+      # Each product opens its update PR, and moves the feature branch this release ships with.
       - name: Tell the products
         env:
-          GH_TOKEN: ${{ secrets.DESIGN_SYSTEM_BOT_TOKEN }}
+          GH_TOKEN: ${{ steps.app.outputs.token }}
         run: |
           for repo in ai-chatbot Sefaria-Project; do
             gh api "repos/Sefaria/$repo/dispatches" \
