@@ -21,12 +21,9 @@ test('semantic pointing at core passes', () => {
   assert.deepEqual(errorsOf(core, block('  --semantic-text-link: var(--core-navy-700);')), []);
 });
 
-test('a raw semantic value passes only for the legacy unmapped tokens', () => {
-  const legacy = check(core, block('  --semantic-text-link: #18345D; /* unmapped */'));
-  assert.deepEqual(legacy.errors, []);
-  assert.equal(legacy.unmapped.length, 1);
-  // A comment saying "unmapped" doesn't make a new raw value allowed.
-  assert.equal(errorsOf(core, block('  --semantic-new: #18345D; /* unmapped */')).length, 1);
+test('a raw semantic value fails, even marked unmapped', () => {
+  assert.match(errorsOf(core, block('  --text-link: #18345D;'))[0], /must be var\(--a-core-token\)/);
+  assert.equal(errorsOf(core, block('  --text-link: #18345D; /* unmapped */')).length, 1);
 });
 
 test('reference to an undefined core token fails', () => {

@@ -4,14 +4,8 @@
 import { readFileSync } from 'node:fs';
 import { check, checkPackage } from './tokens.mjs';
 
-const { errors, unmapped } = check(readFileSync('core.css', 'utf8'), readFileSync('semantic.css', 'utf8'));
+const { errors } = check(readFileSync('core.css', 'utf8'), readFileSync('semantic.css', 'utf8'));
 errors.push(...checkPackage(readFileSync('package.json', 'utf8')));
-
-if (unmapped.length) {
-  console.log(`${unmapped.length} semantic token(s) still hold a raw value instead of pointing at a core token:`);
-  for (const d of unmapped) console.log(`  ${d.file}:${d.line}  ${d.name}: ${d.value}`);
-  console.log('');
-}
 
 if (errors.length) {
   console.error(`${errors.length} error(s):`);

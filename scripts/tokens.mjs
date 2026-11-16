@@ -4,18 +4,6 @@
 export const BASE_SELECTOR = ':root, :host';
 export const DARK_SELECTOR = ':root[data-theme="dark"], :host([data-theme="dark"])';
 
-// Semantic tokens copied from the Library Assistant that still hold a raw value. No new ones:
-// a new semantic token points at a core token. Remove a name here once it points at one.
-export const LEGACY_UNMAPPED = new Set([
-  '--semantic-action-primary',
-  '--semantic-text-primary',
-  '--semantic-text-secondary',
-  '--semantic-text-muted',
-  '--semantic-text-link',
-  '--functional-icon-icon-primary',
-  '--semantic-icon-muted',
-]);
-
 const DECL = /^(--[a-z0-9-]+)\s*:\s*([^;]+?)\s*;$/i;
 const VAR_REF = /^var\(\s*(--[a-z0-9-]+)\s*\)$/i;
 // Values products may receive: colors, lengths, numbers, var(), calc(), rgb() and font names.
@@ -95,12 +83,11 @@ function checkDuplicates(blocks, file, errors) {
   }
 }
 
-// Checks both files together. Returns { errors, unmapped: [decl & {file}] }.
+// Checks both files together. Returns { errors }.
 export function check(coreText, semanticText) {
   const core = parse(coreText, 'core.css');
   const semantic = parse(semanticText, 'semantic.css');
   const errors = [...core.errors, ...semantic.errors];
-  const unmapped = [];
   checkDuplicates(core.blocks, 'core.css', errors);
   checkDuplicates(semantic.blocks, 'semantic.css', errors);
 
@@ -138,8 +125,6 @@ export function check(coreText, semanticText) {
         if (!coreNames.has(ref[1])) {
           errors.push(`semantic.css:${d.line}: ${d.name} points at ${ref[1]}, which core.css doesn't define`);
         }
-      } else if (LEGACY_UNMAPPED.has(d.name)) {
-        unmapped.push({ ...d, file: 'semantic.css' });
       } else {
         errors.push(
           `semantic.css:${d.line}: ${d.name} must be var(--a-core-token), got "${d.value}". ` +
@@ -154,7 +139,7 @@ export function check(coreText, semanticText) {
     }
   }
 
-  return { errors, unmapped };
+  return { errors };
 }
 
 // Lifecycle scripts run when a product installs this package (npm runs a git dependency's
