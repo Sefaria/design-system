@@ -1,42 +1,58 @@
-name: Preview in the products
+name: Preview links
 
-# Tells ai-chatbot and Sefaria-Project about this PR on every open, push, edit and close.
-# Their design-system workflows decide what to do:
-# - Standalone PR: a draft Library Assistant PR (Coolify preview) and the design-system cauldron
-#   (Sefaria) use this PR's CSS. A comment here links to both.
-# - "Ships with: ai-chatbot#123" or "Ships with: Sefaria-Project#123": that PR's branch uses this PR's CSS.
+# Comments on each PR how to see it: any Sefaria page outside production (a cauldron, staging or
+# local) opened with ?design_system=<commit or branch> loads this PR's CSS over the released one, on
+# the page and in the Library Assistant. Nothing is built or deployed. Updated on every push.
+#
+# Uses only this repo's GITHUB_TOKEN; no secrets, so running the PR's own copy of this file is safe.
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited, closed]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  pull-requests: write
 
 concurrency: preview-${{ github.event.pull_request.number }}
 
 jobs:
-  dispatch:
-    # Branches from forks get no secrets; previews are for branches in this repo.
+  comment:
+    # A fork's PR gets a read-only token and its branch isn't in this repo.
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
-      # The base branch's copy of the script: a PR can't change how its own link is read.
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.base.sha }}
-
-      - name: Tell the products
+      - name: Post or update the preview comment
         env:
-          GH_TOKEN: ${{ secrets.DESIGN_SYSTEM_BOT_TOKEN }}
-          PR_BODY: ${{ github.event.pull_request.body }}
-          PR_STATE: ${{ github.event.action }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          BRANCH: ${{ github.event.pull_request.head.ref }}
         run: |
-          action=open
-          [ "$PR_STATE" = "closed" ] && action=close
-          ships_with=$(scripts/ships-with.sh "$PR_BODY")
-          for repo in ai-chatbot Sefaria-Project; do
-            gh api "repos/Sefaria/$repo/dispatches" \
-              -f event_type=design-system-preview \
-              -f "client_payload[action]=$action" \
-              -f "client_payload[pr]=${{ github.event.pull_request.number }}" \
-              -f "client_payload[sha]=${{ github.event.pull_request.head.sha }}" \
-              -f "client_payload[ships_with]=$ships_with"
-          done
+          set -euo pipefail
+          marker='<!-- design-system-preview -->'
+          short=${SHA::7}
+          staging="https://www.sefariastaging.org/texts?design_system=$short"
+          if [[ "$BRANCH" =~ ^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*$ && "$BRANCH" != *..* ]]; then
+            follow="To follow the branch instead of this commit, use \`?design_system=$BRANCH\` (it picks up a push within about 5 minutes)."
+          else
+            follow="The branch name has characters a preview can't use, so use the commit."
+          fi
+          body="$marker
+          **Preview this PR** (commit \`$short\`): add \`?design_system=$short\` to any Sefaria page outside production, such as a cauldron, staging or your local Sefaria. Sefaria and the Library Assistant both load this PR's CSS over the released version.
+
+          - Staging: $staging
+          - $follow
+          - To see a Library Assistant PR's preview with it, add \`&chatbot_version=<PR number>\`.
+          - It stays on for that browser until \`?design_system=clear\`."
+
+          # Fetch the comments first: if that fails, stop rather than post a duplicate.
+          comments=$(gh api "repos/$REPO/issues/$PR/comments" --paginate)
+          # --paginate prints one array per page; -s and add merge them. Only this workflow's own
+          # comment counts: one pasted by someone else can't be edited with this token.
+          id=$(jq -rs --arg m "$marker" 'add // [] | map(select(.user.login == "github-actions[bot]" and (.body | startswith($m))))[0].id // empty' <<<"$comments")
+          if [[ -n "$id" ]]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$id" -f body="$body" > /dev/null
+          else
+            gh api "repos/$REPO/issues/$PR/comments" -f body="$body" > /dev/null
+          fi

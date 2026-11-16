@@ -11,8 +11,6 @@
  *
  * Rules (checked by `npm run check`):
  * - Every value is var(--a-core-token), pointing at a token defined in core.css.
- * - A raw value is allowed only while it carries an `unmapped` comment on the same line.
- *   `npm run check` lists them. No new ones should be added.
  * - Every block uses the selector `:root, :host` (see core.css).
  */
 
