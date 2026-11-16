@@ -1,10 +1,17 @@
 /*
  * Semantic tokens: what a value is for. Products use these.
  *
+ * This file is the source of truth for semantic tokens; Figma is not kept in sync with it.
+ * It started from the Figma Foundations library (Library mode, 2026-11-15), so names follow
+ * Figma's paths: Semantic/Text/Primary -> --text-primary, Spacing/spacing-large ->
+ * --spacing-large, Border width/Alias/border-width-thin -> --border-width-thin.
+ *
+ * Semantic tokens carry no layer prefix (--text-primary, --spacing-large); core tokens do
+ * (--core-*, --global-*, --shadow-*), so a name without one is the one products use.
+ *
  * Rules (checked by `npm run check`):
  * - Every value is var(--a-core-token), pointing at a token defined in core.css.
  * - A raw value is allowed only while it carries an `unmapped` comment on the same line.
- *   These were copied from the Library Assistant and still need a core token to point at.
  *   `npm run check` lists them. No new ones should be added.
  * - Every block uses the selector `:root, :host` (see core.css).
  */
@@ -12,19 +19,124 @@
 :root,
 :host {
   /* Spacing */
-  --spacing-spacing-medium: var(--global-dimension-150);
-  --spacing-spacing-large: var(--global-dimension-200);
+  --spacing-null: var(--global-dimension-0);
+  --spacing-2xsmall: var(--global-dimension-25);
+  --spacing-xsmall: var(--global-dimension-50);
+  --spacing-small: var(--global-dimension-100);
+  --spacing-medium: var(--global-dimension-150);
+  --spacing-large: var(--global-dimension-200);
+  --spacing-xlarge: var(--global-dimension-250);
+  --spacing-2xlarge: var(--global-dimension-300);
+  --spacing-3xlarge: var(--global-dimension-350);
+  --spacing-4xlarge: var(--global-dimension-400);
+  --spacing-5xlarge: var(--global-dimension-500);
+  --spacing-6xlarge: var(--global-dimension-600);
+  --spacing-7xlarge: var(--global-dimension-800);
+  --spacing-8xlarge: var(--global-dimension-1200);
 
-  /* Action */
-  --semantic-action-primary: #18345D; /* unmapped */
+  /* Border width */
+  --border-width-null: var(--global-border-width-0);
+  --border-width-thin: var(--global-border-width-100);
+  --border-width-medium: var(--global-border-width-150);
+  --border-width-thick: var(--global-border-width-200);
+
+  /* Icon size */
+  --icon-small: var(--global-dimension-150);
+  --icon-medium: var(--global-dimension-225);
+  --icon-large: var(--global-dimension-300);
 
   /* Text */
-  --semantic-text-primary: #121212; /* unmapped */
-  --semantic-text-secondary: #575757; /* unmapped */
-  --semantic-text-muted: #707070; /* unmapped */
-  --semantic-text-link: #18345D; /* unmapped */
+  --text-primary: var(--core-neutral-gray-1000);
+  --text-secondary: var(--core-neutral-gray-700);
+  --text-muted: var(--core-neutral-gray-550);
+  --text-disabled: var(--core-neutral-gray-400);
+  --text-inverse: var(--core-base-white);
+  --text-link: var(--core-navy-700);
+  --text-link-hovered: var(--core-navy-800);
 
   /* Icon */
-  --functional-icon-icon-primary: #666666; /* unmapped */
-  --semantic-icon-muted: #6F6F6F; /* unmapped */
+  --icon-default: var(--core-neutral-gray-1000);
+  --icon-muted: var(--core-neutral-gray-500);
+  --icon-disabled: var(--core-neutral-gray-400);
+  --icon-inverse: var(--core-base-white);
+
+  /* Action */
+  --action-primary: var(--core-navy-700);
+  --action-primary-hover: var(--core-navy-800);
+  --action-primary-pressed: var(--core-navy-1000);
+  --action-primary-disabled: var(--core-neutral-gray-250);
+  --action-secondary: var(--core-neutral-gray-700);
+  --action-secondary-hover: var(--core-neutral-gray-800);
+  --action-secondary-pressed: var(--core-neutral-gray-1000);
+
+  /* Surface */
+  --surface-page: var(--core-base-white);
+  --surface-subtle: var(--core-neutral-gray-50);
+  --surface-hover: var(--core-neutral-gray-100);
+  --surface-hover-accent: var(--core-blue-100);
+  --surface-selected: var(--core-navy-100);
+  --surface-selected-accent: var(--core-blue-200);
+  --surface-highlighted: var(--core-navy-200);
+  --surface-inverse: var(--core-navy-900);
+
+  /* Border */
+  --border-default: var(--core-neutral-gray-200);
+  --border-subtle: var(--core-neutral-gray-100);
+  --border-strong: var(--core-navy-700);
+  --border-focus: var(--core-neutral-gray-300);
+  --border-transparent: var(--core-base-transparent);
+
+  /* Module (the product's own color: Library navy; Sheets and DevPortal modes not added yet) */
+  --module-primary: var(--core-navy-700);
+  --module-primary-light: var(--core-navy-200);
+  --module-accent: var(--core-blue-100);
+  --module-background: var(--core-base-white);
+
+  /* Feedback: error */
+  --feedback-error-text: var(--core-validation-red-700);
+  --feedback-error-border: var(--core-validation-red-700);
+  --feedback-error-background: var(--core-validation-red-100);
+  --feedback-error-hover: var(--core-validation-red-800);
+
+  /* Feedback: warning */
+  --feedback-warning: var(--core-validation-yellow-700);
+  --feedback-warning-text: var(--core-validation-yellow-700);
+  --feedback-warning-border: var(--core-validation-yellow-700);
+  --feedback-warning-background: var(--core-validation-yellow-100);
+
+  /* Feedback: success */
+  --feedback-success: var(--core-brand-green-700);
+  --feedback-success-text: var(--core-validation-green-800);
+  --feedback-success-border: var(--core-validation-green-800);
+  --feedback-success-background: var(--core-brand-green-100);
+
+  /* Feedback: info */
+  --feedback-info: var(--core-navy-600);
+  --feedback-info-text: var(--core-navy-900);
+  --feedback-info-border: var(--core-navy-600);
+  --feedback-info-background: var(--core-navy-100);
+
+  /* Library Assistant entry points: the Ask button, Sefaria's header pill and phone menu item */
+  --chatbot-entry: var(--core-brand-purple-700);
+  --chatbot-entry-hover: var(--core-brand-purple-800);
+
+  /* Category (Sefaria's text categories; Figma: category/*) */
+  --category-tanakh-teal: var(--core-brand-teal-200);
+  --category-mishnah-blue: var(--core-blue-400);
+  --category-talmud-gold: var(--core-brand-gold-100);
+  --category-midrash-green: var(--core-brand-green-600);
+  --category-halakhah-red: var(--core-brand-coral-200);
+  --category-kabbalah-purple: var(--core-brand-violet-100);
+  --category-liturgy-rose: var(--core-brand-pink-200);
+  --category-philosophy-purple: var(--core-brand-lavender-100);
+  --category-taanitic-green: var(--core-brand-green-800);
+  --category-chasidut-green: var(--core-brand-green-400);
+  --category-mussar-purple: var(--core-brand-purple-700);
+  --category-responsa-red: var(--core-brand-coral-100);
+  --category-apocrypha-pink: var(--core-brand-pink-100);
+  --category-modern-works-blue: var(--core-blue-300);
+  --category-commentary-blue: var(--core-blue-500);
+  --category-essay-links-green: var(--core-brand-green-900);
+  --category-reference-orange: var(--core-brand-orange-100);
+  --category-beit-midrash-grey: var(--core-neutral-gray-800);
 }

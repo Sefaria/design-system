@@ -1,11 +1,11 @@
 # Sefaria design system
 
-The code side of Sefaria's Figma design system: core and semantic tokens as CSS variables, one source for every product. Used by the Library Assistant (`Sefaria/ai-chatbot`, bundled into the widget) and Sefaria-Project (served as `static/design-system/*.css` from `node_modules`, loaded in `base.html`).
+Sefaria's design tokens: core and semantic tokens as CSS variables, the source of truth for every product (Figma is not kept in sync). Used by the Library Assistant (`Sefaria/ai-chatbot`, bundled into the widget) and Sefaria-Project (served as `static/design-system/*.css` from `node_modules`, loaded in `base.html`).
 
 | File | Holds | Rule |
 |---|---|---|
 | `core.css` | The only raw values: color palette, dimension scale | Raw values only |
-| `semantic.css` | What a value is for (`--semantic-text-primary`) | Each value is `var(--a-core-token)` |
+| `semantic.css` | What a value is for (`--text-primary`) | Each value is `var(--a-core-token)` |
 
 Products use semantic tokens. Product-specific variables (the Library Assistant's `--lc-*`) stay in the product and point at semantic tokens.
 
