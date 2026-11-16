@@ -17,7 +17,7 @@ Every block uses the selector `:root, :host`: on a page `:root` matches, inside 
 
 1. **Open a PR.** CI checks the rules. Removing or renaming a token needs the `breaking` label (CI checks it), because products use tokens by name.
 2. **Preview it.** A bot comment on the PR has the links: any Sefaria page outside production (a cauldron, staging, or local) opened with `?design_system=<commit>` loads the PR's CSS over the released one, on the page and in the Library Assistant. Nothing is built. `?design_system=<branch>` follows the branch (a push shows within about 5 minutes); add `&chatbot_version=<n>` for a Library Assistant PR's preview; `?design_system=clear` turns it off.
-3. **Merge** (one approval). If `core.css` or `semantic.css` changed since the last release, the merge is tagged as a release: `v1.4.0`, or `v2.0.0` if a token was removed or renamed. The tag is the version (`package.json` stays `0.0.0`).
+3. **Merge** (one approval). If a token was added or changed its value since the last release, the merge is tagged as a release, `v1.4.0`; `v2.0.0` if a token was removed or renamed. Comments and formatting don't release. The tag is the version (`package.json` stays `0.0.0`).
 4. **The products update.** In each product the `sefaria-design-system` app opens (or updates) one PR, "fix(design-system): update to v1.4.0". Nothing changes in a product until that PR merges:
    - Sefaria-Project: merges itself once approved and CI passes; deploys to staging, then prod with the next promotion.
    - ai-chatbot: someone merges it once CI passes; it reaches chat-dev, then prod with the next `production` release.
@@ -37,6 +37,6 @@ To try local changes in a product, `npm link` this checkout there and restart it
 ## Setup (once)
 
 - `main` protected: PR, one approval, CI (`Check tokens`).
-- The `sefaria-design-system` GitHub App (Contents and Pull requests: read and write), installed on this repo, ai-chatbot and Sefaria-Project. Org variable `DESIGN_SYSTEM_APP_ID` and org secret `DESIGN_SYSTEM_APP_PRIVATE_KEY`, limited to those three repos. Only `release.yml` uses them, on pushes to protected `main`.
+- The `sefaria-design-system` GitHub App (Contents and Pull requests: read and write), installed on this repo, ai-chatbot and Sefaria-Project. Org variable `DESIGN_SYSTEM_APP_ID`. The private key is the secret `DESIGN_SYSTEM_APP_PRIVATE_KEY` of a `design-system` environment in each of the three repos, which only the default branch may use, so a workflow pushed on another branch can't read it. Here only `release.yml`'s release job uses it.
 - "Allow auto-merge" on in Sefaria-Project.
 - Label `breaking`.

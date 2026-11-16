@@ -11,6 +11,27 @@ const VAR_REF = /^var\(\s*(--[a-z0-9-]+)\s*\)$/i;
 // rules, at-rules, url() or !important.
 const SAFE_VALUE = /^[A-Za-z0-9#.,%()\s+\-*/_"']+$/;
 const UNSAFE_VALUE = /url\s*\(|image-set\s*\(|expression\s*\(|important/i;
+// Token values are short; a long one is a mistake (or something smuggled in).
+export const MAX_VALUE_LENGTH = 200;
+
+// Brackets and quotes must close within the value. An unclosed one makes the browser's error
+// recovery swallow the following declarations, or the block's closing brace.
+export function balanced(value) {
+  let depth = 0;
+  let quote = null;
+  for (const ch of value) {
+    if (quote) {
+      if (ch === quote) quote = null;
+    } else if (ch === '"' || ch === "'") {
+      quote = ch;
+    } else if (ch === '(') {
+      depth++;
+    } else if (ch === ')') {
+      if (--depth < 0) return false;
+    }
+  }
+  return depth === 0 && !quote;
+}
 
 // Whitespace doesn't matter in a selector; everything else must match exactly.
 const normalizeSelector = (s) => s.trim().replace(/\s+/g, ' ').replace(/\s*,\s*/g, ', ');
@@ -59,7 +80,11 @@ export function parse(text, file) {
         return;
       }
       const [, name, value] = m;
-      if (!SAFE_VALUE.test(value) || UNSAFE_VALUE.test(value)) {
+      if (value.length > MAX_VALUE_LENGTH) {
+        errors.push(`${file}:${line}: ${name} is longer than ${MAX_VALUE_LENGTH} characters`);
+        return;
+      }
+      if (!SAFE_VALUE.test(value) || UNSAFE_VALUE.test(value) || !balanced(value)) {
         errors.push(`${file}:${line}: ${name} has a value that isn't allowed: ${value}`);
         return;
       }
@@ -169,4 +194,27 @@ export function tokenKeys(coreText, semanticText) {
 // Tokens in `before` that are gone from `after`. Changing a value isn't a removal.
 export function removedTokens(before, after) {
   return [...before].filter((key) => !after.has(key));
+}
+
+// Every token as "selector name" -> its declared value, whitespace normalized. Comments and
+// formatting don't count; a value that points at another core token does.
+export function tokenValues(coreText, semanticText) {
+  const values = new Map();
+  for (const [text, file] of [
+    [coreText, 'core.css'],
+    [semanticText, 'semantic.css'],
+  ]) {
+    for (const block of parse(text, file).blocks) {
+      for (const d of block.decls) values.set(`${block.selector} ${d.name}`, d.value.replace(/\s+/g, ' '));
+    }
+  }
+  return values;
+}
+
+// What a release from `before` to `after` (both from tokenValues) needs: 'major' if a token was
+// removed or renamed, 'minor' if one was added or its value changed, 'none' otherwise.
+export function releaseKind(before, after) {
+  if ([...before.keys()].some((key) => !after.has(key))) return 'major';
+  if ([...after].some(([key, value]) => before.get(key) !== value)) return 'minor';
+  return 'none';
 }

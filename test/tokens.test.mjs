@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { test } from 'node:test';
-import { check, checkPackage, removedTokens, tokenKeys } from '../scripts/tokens.mjs';
+import { check, checkPackage, MAX_VALUE_LENGTH, releaseKind, removedTokens, tokenKeys, tokenValues } from '../scripts/tokens.mjs';
 
 const core = `:root,
 :host {
@@ -93,4 +94,52 @@ test('removing or renaming a token is a removal; changing its value is not', () 
   assert.deepEqual(removedTokens(before, tokenKeys(core, block('  --semantic-link: var(--core-white);'))), [
     ':root, :host --semantic-text-link',
   ]);
+});
+
+test('values the deny-list must catch fail (they pass the character allow-list)', () => {
+  for (const value of ['url(x.png)', 'URL (x)', 'image-set(x)', 'expression(x)']) {
+    assert.equal(errorsOf(block(`  --core-a: ${value};`), '').length, 1, value);
+  }
+});
+
+test('unbalanced brackets or quotes, and very long values, fail', () => {
+  // Either would make the browser's error recovery swallow the declarations after it.
+  for (const value of ['rgb(1, 2', 'rgb(1, 2))', ')(', '"Roboto', "'Roboto\"", 'a'.repeat(MAX_VALUE_LENGTH + 1)]) {
+    assert.equal(errorsOf(block(`  --core-a: ${value};`), '').length, 1, value);
+  }
+  assert.deepEqual(errorsOf(block(`  --core-a: "a(b", 'c)d';`), ''), []);
+});
+
+test('release kind: none for comments and formatting, minor for added or changed, major for removed', () => {
+  const sem = (body) => block(body);
+  const before = tokenValues(core, sem('  --text-link: var(--core-navy-700);'));
+  const kind = (coreText, semanticText) => releaseKind(before, tokenValues(coreText, semanticText));
+  assert.equal(kind(core, sem('  /* note */ --text-link:   var(--core-navy-700);  /* again */')), 'none');
+  assert.equal(kind(core, sem('  --text-link: var(--core-white);')), 'minor');
+  assert.equal(kind(core.replace('#18345D', '#18345E'), sem('  --text-link: var(--core-navy-700);')), 'minor');
+  assert.equal(kind(core, sem('  --text-link: var(--core-navy-700);\n  --text-new: var(--core-white);')), 'minor');
+  assert.equal(kind(core, sem('  --link: var(--core-navy-700);')), 'major');
+});
+
+// The scripts the release and CI run, against this repo's own history.
+const run = (script, args, env = {}) => {
+  try {
+    return { code: 0, out: execFileSync('node', [script, ...args], { encoding: 'utf8', stdio: 'pipe', env: { ...process.env, ...env } }) };
+  } catch (e) {
+    return { code: e.status, out: String(e.stdout) };
+  }
+};
+
+test('release-plan prints a release kind against HEAD, and fails on an unknown ref', () => {
+  const ok = run('scripts/release-plan.mjs', ['HEAD']); // 'none' unless the token files have uncommitted edits
+  assert.equal(ok.code, 0);
+  assert.match(ok.out, /^(none|minor|major)\n$/);
+  const bad = run('scripts/release-plan.mjs', ['no-such-ref']);
+  assert.equal(bad.code, 2);
+  assert.equal(bad.out, '');
+});
+
+test('check-removals passes against HEAD, and exits 2 (not 1) on an unknown ref', () => {
+  assert.equal(run('scripts/check-removals.mjs', ['HEAD'], { BREAKING: 'false' }).code, 0);
+  assert.equal(run('scripts/check-removals.mjs', ['no-such-ref'], { BREAKING: 'false' }).code, 2);
 });

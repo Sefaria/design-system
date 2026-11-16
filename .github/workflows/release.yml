@@ -1,10 +1,15 @@
 name: Release
 
-# A push to main that changes core.css or semantic.css since the last release is tagged, then the
-# products are told. Everything is computed from <last release>..HEAD, so a run cancelled by a newer
-# push loses nothing: the next run covers its changes.
-# Version: minor bump; major if a token was removed or renamed since the last release (CI already
-# requires the `breaking` label on such PRs; this doesn't depend on the label).
+# A push to main whose tokens changed since the last release is tagged, then the products are told.
+# "Changed" compares tokens (names and values), not file text: comments and formatting never
+# release (scripts/release-plan.mjs). Minor bump; major if a token was removed or renamed.
+# Everything is computed from <last release>..HEAD, so a run cancelled by a newer push loses
+# nothing: the next run covers its changes.
+#
+# Re-running a run is safe:
+# - HEAD already tagged (e.g. the dispatch failed after tagging): no new tag; the products are told
+#   again. They ignore a tag that isn't newer than what they have.
+# - HEAD older than the latest release: nothing.
 
 on:
   push:
@@ -13,10 +18,13 @@ on:
 concurrency: release
 
 jobs:
-  release:
+  plan:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+      publish: ${{ steps.version.outputs.publish }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,38 +40,55 @@ jobs:
       - name: Next version
         id: version
         run: |
-          # Releases only: vX.Y.Z, nothing like v2.0.0-rc.1.
-          last=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1 || true)
-          if [ -n "$last" ] && git tag --points-at HEAD | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "HEAD is already released; nothing to do."
-            echo "release=false" >> "$GITHUB_OUTPUT"; exit 0
+          release() { grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1; }
+          last=$(git tag --list 'v*' | release || true)
+          head_tag=$(git tag --points-at HEAD | release || true)
+
+          if [ -n "$head_tag" ]; then
+            echo "HEAD is already released as $head_tag; telling the products again."
+            echo "tag=$head_tag" >> "$GITHUB_OUTPUT"
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+          if [ -n "$last" ] && ! git merge-base --is-ancestor "$last" HEAD; then
+            echo "HEAD is older than the latest release, $last; nothing to do."
+            exit 0
+          fi
+
           if [ -z "$last" ]; then
             next=v1.0.0
-          elif git diff --quiet "$last" HEAD -- core.css semantic.css; then
-            echo "No token file changed since $last; nothing to release."
-            echo "release=false" >> "$GITHUB_OUTPUT"; exit 0
           else
+            kind=$(node scripts/release-plan.mjs "$last")  # fails the job on any error
             IFS=. read -r major minor _ <<< "${last#v}"
-            if BREAKING=false node scripts/check-removals.mjs "$last" > /dev/null 2>&1; then
-              next="v${major}.$((minor + 1)).0"
-            else
-              echo "Tokens were removed or renamed since $last: major version."
-              next="v$((major + 1)).0.0"
-            fi
+            case "$kind" in
+              none)  echo "No token changed since $last; nothing to release."; exit 0 ;;
+              minor) next="v${major}.$((minor + 1)).0" ;;
+              major) echo "Tokens were removed or renamed since $last: major version."
+                     next="v$((major + 1)).0.0" ;;
+              *)     echo "::error::release-plan.mjs printed '$kind'"; exit 1 ;;
+            esac
           fi
-          echo "release=true" >> "$GITHUB_OUTPUT"
           echo "tag=$next" >> "$GITHUB_OUTPUT"
+          echo "publish=true" >> "$GITHUB_OUTPUT"
           echo "Releasing $next (after ${last:-nothing})"
 
+  release:
+    needs: plan
+    if: needs.plan.outputs.tag != ''
+    runs-on: ubuntu-latest
+    # The app's private key is a secret of this environment, which only `main` may use: a workflow
+    # pushed on any other branch can't read it.
+    environment: design-system
+    permissions:
+      contents: write
+    steps:
       # A short-lived token from the sefaria-design-system GitHub App (org variable
-      # DESIGN_SYSTEM_APP_ID, org secret DESIGN_SYSTEM_APP_PRIVATE_KEY); GITHUB_TOKEN only reaches this repo.
-      # Before tagging, so a missing or uninstalled app fails the run without publishing a release
-      # the products never hear about.
+      # DESIGN_SYSTEM_APP_ID, environment secret DESIGN_SYSTEM_APP_PRIVATE_KEY); GITHUB_TOKEN only
+      # reaches this repo. Before tagging, so a missing or uninstalled app fails the run without
+      # publishing a release the products never hear about.
       - name: Get the design-system app's token
-        if: steps.version.outputs.release == 'true'
         id: app
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2.2.2
         with:
           app-id: ${{ vars.DESIGN_SYSTEM_APP_ID }}
           private-key: ${{ secrets.DESIGN_SYSTEM_APP_PRIVATE_KEY }}
@@ -72,23 +97,38 @@ jobs:
           permission-contents: write  # repository_dispatch needs nothing else
 
       - name: Tag and publish the release
-        if: steps.version.outputs.release == 'true'
+        if: needs.plan.outputs.publish == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.plan.outputs.tag }}
+          REPO: ${{ github.repository }}
         run: |
-          gh release create "${{ steps.version.outputs.tag }}" \
-            --target "${{ github.sha }}" \
-            --title "${{ steps.version.outputs.tag }}" \
-            --generate-notes
+          # "Re-run failed jobs" reuses the plan, so the release may already exist.
+          if gh release view "$TAG" -R "$REPO" > /dev/null 2>&1; then
+            echo "$TAG is already published."
+          else
+            gh release create "$TAG" -R "$REPO" --target "$GITHUB_SHA" --title "$TAG" --generate-notes
+          fi
 
       # Each product opens or updates its "update to vX" PR (see their design-system workflows).
+      # Every product is tried; the step fails at the end if any dispatch failed. Re-run the run
+      # then: HEAD is tagged, so the re-run only tells the products again.
       - name: Tell the products
-        if: steps.version.outputs.release == 'true'
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
+          TAG: ${{ needs.plan.outputs.tag }}
         run: |
+          failed=""
           for repo in ai-chatbot Sefaria-Project; do
-            gh api "repos/Sefaria/$repo/dispatches" \
-              -f event_type=design-system-release \
-              -f "client_payload[tag]=${{ steps.version.outputs.tag }}"
+            if gh api "repos/Sefaria/$repo/dispatches" \
+                 -f event_type=design-system-release -f "client_payload[tag]=$TAG" > /dev/null; then
+              echo "Told $repo about $TAG."
+            else
+              echo "::error::Couldn't tell $repo about $TAG."
+              failed="$failed $repo"
+            fi
           done
+          if [ -n "$failed" ]; then
+            echo "Re-run this run to try again; it won't tag again."
+            exit 1
+          fi

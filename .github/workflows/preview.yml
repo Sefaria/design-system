@@ -48,8 +48,9 @@ jobs:
 
           # Fetch the comments first: if that fails, stop rather than post a duplicate.
           comments=$(gh api "repos/$REPO/issues/$PR/comments" --paginate)
-          # --paginate prints one array per page; -s and add merge them.
-          id=$(jq -rs --arg m "$marker" 'add // [] | map(select(.body | startswith($m)))[0].id // empty' <<<"$comments")
+          # --paginate prints one array per page; -s and add merge them. Only this workflow's own
+          # comment counts: one pasted by someone else can't be edited with this token.
+          id=$(jq -rs --arg m "$marker" 'add // [] | map(select(.user.login == "github-actions[bot]" and (.body | startswith($m))))[0].id // empty' <<<"$comments")
           if [[ -n "$id" ]]; then
             gh api -X PATCH "repos/$REPO/issues/comments/$id" -f body="$body" > /dev/null
           else
