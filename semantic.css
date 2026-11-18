@@ -45,23 +45,23 @@
 
   /* Text */
   --text-primary: var(--core-neutral-gray-1000);
-  --text-secondary: var(--core-neutral-gray-700);
+  --text-secondary: var(--core-brand-green-900);
   --text-muted: var(--core-neutral-gray-550);
   --text-disabled: var(--core-neutral-gray-400);
   --text-inverse: var(--core-base-white);
-  --text-link: var(--core-navy-700);
+  --text-link: var(--core-brand-coral-200);
   --text-link-hovered: var(--core-navy-800);
 
   /* Icon */
   --icon-default: var(--core-neutral-gray-1000);
-  --icon-muted: var(--core-neutral-gray-500);
+  --icon-muted: var(--core-validation-red-600);
   --icon-disabled: var(--core-neutral-gray-400);
   --icon-inverse: var(--core-base-white);
 
   /* Action */
-  --action-primary: var(--core-navy-700);
-  --action-primary-hover: var(--core-navy-800);
-  --action-primary-pressed: var(--core-navy-1000);
+  --action-primary: var(--core-validation-red-700);
+  --action-primary-hover: var(--core-validation-red-800);
+  --action-primary-pressed: var(--core-validation-red-900);
   --action-primary-disabled: var(--core-neutral-gray-250);
   --action-secondary: var(--core-neutral-gray-700);
   --action-secondary-hover: var(--core-neutral-gray-800);
@@ -80,14 +80,14 @@
   /* Border */
   --border-default: var(--core-neutral-gray-200);
   --border-subtle: var(--core-neutral-gray-100);
-  --border-strong: var(--core-navy-700);
+  --border-strong: var(--core-validation-red-700);
   --border-focus: var(--core-neutral-gray-300);
   --border-transparent: var(--core-base-transparent);
 
   /* Module (the product's own color: Library navy; Sheets and DevPortal modes not added yet) */
-  --module-primary: var(--core-navy-700);
+  --module-primary: var(--core-brand-green-800);
   --module-primary-light: var(--core-navy-200);
-  --module-accent: var(--core-blue-100);
+  --module-accent: var(--core-validation-red-100);
   --module-background: var(--core-base-white);
 
   /* Feedback: error */
